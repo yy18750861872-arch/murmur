@@ -1,5 +1,2 @@
-// A user-requested snapshot of a public collection. Never controls Bilibili playback.
-const importKey='murmur-import-bilibili-734332779-v1';
-let importBusy=false,importMessage='';
-async function importCollection(manual=false){if(importBusy)return;try{if(!manual&&localStorage.getItem(importKey)){render();return}}catch{importMessage='当前浏览器存储不可用，无法自动导入。';render();return}importBusy=true;render();try{const response=await fetch('bilibili-import.json',{cache:'no-cache'});if(!response.ok)throw Error('fetch');const snapshot=await response.json();if(!Array.isArray(snapshot.items)||snapshot.items.length!==65)throw Error('data');const urls=new Set(saved.map(x=>x.url));const additions=[];for(const item of snapshot.items){const u=new URL(item.url);if(u.hostname!=='www.bilibili.com'||u.protocol!=='https:'||!/^\/video\/BV[a-zA-Z0-9]+$/.test(u.pathname)||typeof item.title!=='string')throw Error('data');if(!urls.has(u.href)){urls.add(u.href);additions.push({...item,url:u.href})}}const before=saved;saved=[...saved,...additions];if(!persist()){saved=before;throw Error('storage')}localStorage.setItem(importKey,'done');importMessage=`已导入 ${additions.length} 条，跳过 ${snapshot.items.length-additions.length} 条重复链接。收藏夹“奥术魔刃”共 65 条有效链接；9 条已失效视频未导入，另 1 条未由接口返回。这是一次快照，暂不自动同步。`;if(additions.length)notify(`已导入奥术魔刃：${additions.length} 条声音收藏`)}catch{importMessage='导入未完成，请检查网络或浏览器存储后点击重试。';notify(importMessage)}finally{importBusy=false;render()}}
-importCollection();
+// Compatibility with the existing Pages workflow.
+// Account users do not automatically import the author collection.
